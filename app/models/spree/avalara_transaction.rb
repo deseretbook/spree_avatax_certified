@@ -235,6 +235,29 @@ module Spree
           AVALARA_TRANSACTION_LOGGER.debug line.to_xml
 
           tax_line_items<<line
+
+          line_item.adjustments.promotion.each do |adj|
+            line = Hash.new
+
+            line[:LineNo] = "#{adj.id}-PR"
+            line[:ItemCode] = "Promotion"
+            line[:Qty] = 0
+            line[:Amount] = adj.amount.to_f
+            line[:Discounted] = adj.try(:promotion) ? true : false
+            line[:OriginCode] = "Orig"
+            line[:DestinationCode] = "Dest"
+
+            if myusecode
+              line[:CustomerUsageType] = myusecode.try(:use_code)
+            end
+
+            line[:Description] = adj.label
+            line[:TaxCode] = ""
+
+            AVALARA_TRANSACTION_LOGGER.debug line.to_xml
+
+            tax_line_items<<line
+          end
         end
       end
 
