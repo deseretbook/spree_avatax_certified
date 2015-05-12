@@ -148,6 +148,8 @@ module Spree
         AVALARA_TRANSACTION_LOGGER.debug "error with order's user id"
       end
 
+      discount = order_details.adjustments.promotion.sum(:amount) * -1  # Discounts are negative and Avalara wants positive discount
+
       i = 0
 
       if orderitems then
@@ -172,6 +174,10 @@ module Spree
 
           if myusecode
             line[:CustomerUsageType] = myusecode.try(:use_code)
+          end
+
+          if discount > 0
+            line[:Discounted] = true
           end
 
           AVALARA_TRANSACTION_LOGGER.info('after user check')
@@ -270,31 +276,6 @@ module Spree
           tax_line_items<<line
         end
 
-        order_details.adjustments.promotion.each do |adj|
-
-          line = Hash.new
-          i += 1
-
-          line[:LineNo] = "#{i}-PR"
-          line[:ItemCode] = "Promotion"
-          line[:Qty] = 0
-          line[:Amount] = adj.amount.to_f
-          line[:Discounted] = adj.try(:promotion) ? true : false
-          line[:OriginCode] = "Orig"
-          line[:DestinationCode] = "Dest"
-
-          if myusecode
-            line[:CustomerUsageType] = myusecode.try(:use_code)
-          end
-
-          line[:Description] = adj.label
-          line[:TaxCode] = ""
-
-          AVALARA_TRANSACTION_LOGGER.debug line.to_xml
-
-          tax_line_items<<line
-        end
-
         order_details.return_authorizations.each do |return_auth|
 
           line = Hash.new
@@ -361,6 +342,7 @@ module Spree
         taxoverride[:TaxDate] = org_ord_date
         taxoverride[:TaxAmount] = "0"
       end
+
       gettaxes = {
         :CustomerCode => myuser ? myuser.id : "Guest",
         :DocDate => org_ord_date ? org_ord_date : Date.current.to_formatted_s(:db),
@@ -371,6 +353,7 @@ module Spree
         :Client =>  AVATAX_CLIENT_VERSION || "SpreeExtV2.3",
         :DocCode => doc_code ? doc_code : order_details.number,
 
+        :Discount => discount.to_s,
         :ReferenceCode => order_details.number,
         :DetailLevel => "Tax",
         :Commit => commit,
