@@ -148,7 +148,7 @@ module Spree
         AVALARA_TRANSACTION_LOGGER.debug "error with order's user id"
       end
 
-      discount = order_details.adjustments.promotion.sum(:amount) * -1  # Discounts are negative and Avalara wants positive discount
+      discount = order_details.adjustments.eligible.promotion.sum(:amount) * -1  # Discounts are negative and Avalara wants positive discount
 
       i = 0
 
