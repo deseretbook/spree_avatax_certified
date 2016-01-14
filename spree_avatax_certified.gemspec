@@ -2,7 +2,7 @@
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'spree_avatax_certified'
-  s.version     = '0.3.11'
+  s.version     = '0.3.9999'
   s.summary     = 'Spree extension for Avalara tax calculation.'
   s.description = 'Spree extension for Avalara tax calculation.'
   s.required_ruby_version = '>= 1.9.3'
@@ -16,8 +16,8 @@ Gem::Specification.new do |s|
   s.require_path = 'lib'
   s.requirements << 'none'
 
-  s.add_dependency 'spree_core', '~> 2.3'
-  s.add_dependency 'spree_backend', '~> 2.3'
+  s.add_dependency 'solidus_core', '~> 1.1.0'
+  s.add_dependency 'solidus_backend', '~> 1.1.0'
   s.add_dependency 'json', '~> 1.7'
   s.add_dependency 'addressable', '~> 2.3'
   s.add_dependency 'rest-client', '~> 1.7'
